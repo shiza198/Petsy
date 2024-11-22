@@ -6,14 +6,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
-// Base class Pet
-class Pet {
+// Abstract Pet class
+abstract class AbstractPet {
     private int id;
     private String name;
     private String type;
     private String owner;
 
-    public Pet(int id, String name, String type, String owner) {
+    public AbstractPet(int id, String name, String type, String owner) {
         this.id = id;
         this.name = name;
         this.type = type;
@@ -30,6 +30,10 @@ class Pet {
         return "Pet ID: " + id + ", Name: " + name + ", Type: " + type + ", Owner: " + owner;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -38,29 +42,37 @@ class Pet {
         return type;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public String getOwner() {
         return owner;
     }
+
+    public abstract String getDetails();
 }
 
-// Base class Customer
+// Concrete Pet class extending AbstractPet
+class Pet extends AbstractPet {
+    public Pet(int id, String name, String type, String owner) {
+        super(id, name, type, owner);
+    }
+
+    @Override
+    public String getDetails() {
+        return "Pet details: " + this.toString();
+    }
+}
+
+// Customer class
 class Customer {
     private int id;
     private String name;
     private String email;
     private String phone;
-    private ArrayList<Pet> pets;
 
     public Customer(int id, String name, String email, String phone) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.pets = new ArrayList<>();
     }
 
     public void updateDetails(String name, String email, String phone) {
@@ -69,22 +81,15 @@ class Customer {
         this.phone = phone;
     }
 
-    public void addPet(Pet pet) {
-        pets.add(pet);
-    }
-
     public String toString() {
-        StringBuilder petDetails = new StringBuilder("Pets: ");
-        for (Pet pet : pets) {
-            petDetails.append(pet.getName()).append(" (").append(pet.getType()).append("), ");
-        }
-        return "Customer ID: " + id + ", Name: " + name + ", Email: " + email + ", Phone: " + phone + ", " + petDetails;
+        return "Customer ID: " + id + ", Name: " + name + ", Email: " + email + ", Phone: " + phone;
     }
 
     public int getId() {
         return id;
     }
 }
+
 
 // Class Category (inherits from Pet)
 class Category extends Pet {
