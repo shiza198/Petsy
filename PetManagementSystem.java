@@ -1,13 +1,10 @@
-
-//package petshop;
-
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.io.*;
 import java.util.ArrayList;
+import javax.swing.*;
 
 // Abstract Pet class
-abstract class AbstractPet {
+abstract class AbstractPet implements Serializable {
     private int id;
     private String name;
     private String type;
@@ -62,7 +59,7 @@ class Pet extends AbstractPet {
 }
 
 // Customer class
-class Customer {
+class Customer implements Serializable {
     private int id;
     private String name;
     private String email;
@@ -90,27 +87,8 @@ class Customer {
     }
 }
 
-
-// Class Category (inherits from Pet)
-class Category extends Pet {
-    private String categoryName;
-
-    public Category(int id, String name, String type, String owner, String categoryName) {
-        super(id, name, type, owner);
-        this.categoryName = categoryName;
-    }
-
-    public void updateDetails(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public String toString() {
-        return super.toString() + ", Category: " + categoryName;
-    }
-}
-
 // Class Bill
-class Bill {
+class Bill implements Serializable {
     private int id;
     private Customer customer;
     private double amount;
@@ -134,10 +112,9 @@ class Bill {
 }
 
 // Main class for Pet Management System
-public class PetManagementSystem extends JFrame {
+class PetManagementSystem extends JFrame {
     private ArrayList<Pet> pets = new ArrayList<>();
     private ArrayList<Customer> customers = new ArrayList<>();
-    private ArrayList<Category> categories = new ArrayList<>();
     private ArrayList<Bill> bills = new ArrayList<>();
 
     public PetManagementSystem() {
@@ -150,19 +127,19 @@ public class PetManagementSystem extends JFrame {
         // Adding buttons for each action
         JButton managePetsButton = new JButton("Manage Pets");
         JButton manageCustomersButton = new JButton("Manage Customers");
-        JButton manageCategoriesButton = new JButton("Manage Categories");
         JButton manageBillingButton = new JButton("Manage Billing");
 
         managePetsButton.addActionListener(e -> openManagePetsFrame());
         manageCustomersButton.addActionListener(e -> openManageCustomersFrame());
-        manageCategoriesButton.addActionListener(e -> openManageCategoriesFrame());
         manageBillingButton.addActionListener(e -> openManageBillingFrame());
 
         // Adding buttons to the main frame
         add(managePetsButton);
         add(manageCustomersButton);
-        add(manageCategoriesButton);
         add(manageBillingButton);
+
+        // Load data from files
+        loadData();
 
         setVisible(true);
     }
@@ -177,10 +154,10 @@ public class PetManagementSystem extends JFrame {
         petsFrame.setSize(500, 500);
         petsFrame.setLayout(new GridBagLayout());
         petsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
+    
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5); // Adding padding to the components
-
+    
         // Labels and text fields for pet details
         JLabel idLabel = new JLabel("Pet ID:");
         JTextField idField = new JTextField(20);
@@ -190,10 +167,14 @@ public class PetManagementSystem extends JFrame {
         JTextField typeField = new JTextField(20);
         JLabel ownerLabel = new JLabel("Owner:");
         JTextField ownerField = new JTextField(20);
-
+    
         JTextArea petsTextArea = new JTextArea(10, 40);
         petsTextArea.setEditable(false);
+    
+        // **Update JTextArea with existing pets data when the frame opens**
+        petsTextArea.setText(getPetsData());
 
+    
         // Arrange components in GridBagLayout
         gbc.gridx = 0; gbc.gridy = 0; petsFrame.add(idLabel, gbc);
         gbc.gridx = 1; gbc.gridy = 0; petsFrame.add(idField, gbc);
@@ -203,7 +184,7 @@ public class PetManagementSystem extends JFrame {
         gbc.gridx = 1; gbc.gridy = 2; petsFrame.add(typeField, gbc);
         gbc.gridx = 0; gbc.gridy = 3; petsFrame.add(ownerLabel, gbc);
         gbc.gridx = 1; gbc.gridy = 3; petsFrame.add(ownerField, gbc);
-
+    
         // Add button
         JButton addPetButton = new JButton("Add Pet");
         addPetButton.addActionListener(e -> {
@@ -215,16 +196,17 @@ public class PetManagementSystem extends JFrame {
                 Pet pet = new Pet(id, name, type, owner);
                 pets.add(pet);
                 updateTextArea(petsTextArea, getPetsData());
+                saveData();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(petsFrame, "Invalid ID.");
             }
         });
-
+    
         gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2; petsFrame.add(addPetButton, gbc);
         gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; petsFrame.add(new JScrollPane(petsTextArea), gbc);
-
+    
         petsFrame.setVisible(true);
-    }
+    }    
 
     private String getPetsData() {
         StringBuilder data = new StringBuilder("Current Pets:\n");
@@ -252,13 +234,13 @@ public class PetManagementSystem extends JFrame {
         JTextField emailField = new JTextField(20);
         JLabel phoneLabel = new JLabel("Phone:");
         JTextField phoneField = new JTextField(20);
-        JLabel petNameLabel = new JLabel("Pet Name:");
-        JTextField petNameField = new JTextField(20);
-        JLabel petTypeLabel = new JLabel("Pet Type:");
-        JTextField petTypeField = new JTextField(20);
 
         JTextArea customersTextArea = new JTextArea(10, 40);
         customersTextArea.setEditable(false);
+
+        customersTextArea.setText(getCustomersData());
+        //customersFrame.add(new JScrollPane(customersTextArea), gbc);
+
 
         // Arrange components in GridBagLayout
         gbc.gridx = 0; gbc.gridy = 0; customersFrame.add(idLabel, gbc);
@@ -269,10 +251,6 @@ public class PetManagementSystem extends JFrame {
         gbc.gridx = 1; gbc.gridy = 2; customersFrame.add(emailField, gbc);
         gbc.gridx = 0; gbc.gridy = 3; customersFrame.add(phoneLabel, gbc);
         gbc.gridx = 1; gbc.gridy = 3; customersFrame.add(phoneField, gbc);
-        gbc.gridx = 0; gbc.gridy = 4; customersFrame.add(petNameLabel, gbc);
-        gbc.gridx = 1; gbc.gridy = 4; customersFrame.add(petNameField, gbc);
-        gbc.gridx = 0; gbc.gridy = 5; customersFrame.add(petTypeLabel, gbc);
-        gbc.gridx = 1; gbc.gridy = 5; customersFrame.add(petTypeField, gbc);
 
         // Add button
         JButton addCustomerButton = new JButton("Add Customer");
@@ -285,13 +263,14 @@ public class PetManagementSystem extends JFrame {
                 Customer customer = new Customer(id, name, email, phone);
                 customers.add(customer);
                 updateTextArea(customersTextArea, getCustomersData());
+                saveData();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(customersFrame, "Invalid ID.");
             }
         });
 
-        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 2; customersFrame.add(addCustomerButton, gbc);
-        gbc.gridx = 0; gbc.gridy = 7; gbc.gridwidth = 2; customersFrame.add(new JScrollPane(customersTextArea), gbc);
+        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2; customersFrame.add(addCustomerButton, gbc);
+        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; customersFrame.add(new JScrollPane(customersTextArea), gbc);
 
         customersFrame.setVisible(true);
     }
@@ -303,190 +282,143 @@ public class PetManagementSystem extends JFrame {
         }
         return data.toString();
     }
-    private void openManageCategoriesFrame() {
-        JFrame categoriesFrame = new JFrame("Manage Categories");
-        categoriesFrame.setSize(500, 500);
-        categoriesFrame.setLayout(new GridBagLayout());
-        categoriesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+    private void openManageBillingFrame() {
+        JFrame billingFrame = new JFrame("Manage Billing");
+        billingFrame.setSize(500, 500);
+        billingFrame.setLayout(new GridBagLayout());
+        billingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5); // Adding padding to the components
 
-        // Labels and text fields for category details
-        JLabel idLabel = new JLabel("Category ID:");
-        JTextField idField = new JTextField(20);
-        JLabel nameLabel = new JLabel("Category Name:");
-        JTextField nameField = new JTextField(20);
+        // Labels and text fields for billing details
+        JLabel billIdLabel = new JLabel("Bill ID:");
+        JTextField billIdField = new JTextField(20);
+        JLabel customerIdLabel = new JLabel("Customer ID:");
+        JTextField customerIdField = new JTextField(20);
+        JLabel amountLabel = new JLabel("Amount:");
+        JTextField amountField = new JTextField(20);
+        JLabel dateLabel = new JLabel("Date:");
+        JTextField dateField = new JTextField(20);
 
-        JTextArea categoriesTextArea = new JTextArea(10, 40);
-        categoriesTextArea.setEditable(false);
+        JTextArea billingTextArea = new JTextArea(10, 40);
+        billingTextArea.setEditable(false);
+
+        billingTextArea.setText(getBillingData());
+
 
         // Arrange components in GridBagLayout
-        gbc.gridx = 0; gbc.gridy = 0; categoriesFrame.add(idLabel, gbc);
-        gbc.gridx = 1; gbc.gridy = 0; categoriesFrame.add(idField, gbc);
-        gbc.gridx = 0; gbc.gridy = 1; categoriesFrame.add(nameLabel, gbc);
-        gbc.gridx = 1; gbc.gridy = 1; categoriesFrame.add(nameField, gbc);
+        gbc.gridx = 0; gbc.gridy = 0; billingFrame.add(billIdLabel, gbc);
+        gbc.gridx = 1; gbc.gridy = 0; billingFrame.add(billIdField, gbc);
+        gbc.gridx = 0; gbc.gridy = 1; billingFrame.add(customerIdLabel, gbc);
+        gbc.gridx = 1; gbc.gridy = 1; billingFrame.add(customerIdField, gbc);
+        gbc.gridx = 0; gbc.gridy = 2; billingFrame.add(amountLabel, gbc);
+        gbc.gridx = 1; gbc.gridy = 2; billingFrame.add(amountField, gbc);
+        gbc.gridx = 0; gbc.gridy = 3; billingFrame.add(dateLabel, gbc);
+        gbc.gridx = 1; gbc.gridy = 3; billingFrame.add(dateField, gbc);
 
-        // Add buttons for managing categories
-        JButton addCategoryButton = new JButton("Add Category");
-        addCategoryButton.addActionListener(e -> {
+        // Add button to save billing information
+        JButton addBillButton = new JButton("Add Bill");
+        addBillButton.addActionListener(e -> {
             try {
-                int id = Integer.parseInt(idField.getText());
-                String name = nameField.getText();
-                if (!name.isEmpty()) {
-                    Category category = new Category(id, "Sample Pet", "Dog", "John Doe", name);
-                    categories.add(category);
-                    updateTextArea(categoriesTextArea, getCategoriesData());
+                int billId = Integer.parseInt(billIdField.getText());
+                int customerId = Integer.parseInt(customerIdField.getText());
+                double amount = Double.parseDouble(amountField.getText());
+                String date = dateField.getText();
+
+                Customer customer = findCustomerById(customerId); // Find customer by ID
+                if (customer != null) {
+                    Bill bill = new Bill(billId, customer, amount, date);
+                    bills.add(bill);
+                    updateTextArea(billingTextArea, getBillingData());
                 } else {
-                    JOptionPane.showMessageDialog(categoriesFrame, "Category name cannot be empty.");
+                    JOptionPane.showMessageDialog(billingFrame, "Customer not found.");
                 }
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(categoriesFrame, "Invalid ID.");
+                JOptionPane.showMessageDialog(billingFrame, "Invalid input data.");
             }
         });
 
-        JButton editCategoryButton = new JButton("Edit Category");
-        editCategoryButton.addActionListener(e -> {
-            try {
-                int id = Integer.parseInt(idField.getText());
-                Category category = findCategoryById(id);
-                if (category != null) {
-                    category.updateDetails(nameField.getText());
-                    updateTextArea(categoriesTextArea, getCategoriesData());
-                    JOptionPane.showMessageDialog(categoriesFrame, "Category updated: " + category);
-                } else {
-                    JOptionPane.showMessageDialog(categoriesFrame, "Category not found.");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(categoriesFrame, "Invalid ID.");
-            }
-        });
+        // Add button to billing frame
+        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2; billingFrame.add(addBillButton, gbc);
+        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; billingFrame.add(new JScrollPane(billingTextArea), gbc);
 
-        JButton deleteCategoryButton = new JButton("Delete Category");
-        deleteCategoryButton.addActionListener(e -> {
-            try {
-                int id = Integer.parseInt(idField.getText());
-                Category category = findCategoryById(id);
-                if (category != null) {
-                    categories.remove(category);
-                    updateTextArea(categoriesTextArea, getCategoriesData());
-                    JOptionPane.showMessageDialog(categoriesFrame, "Category deleted.");
-                } else {
-                    JOptionPane.showMessageDialog(categoriesFrame, "Category not found.");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(categoriesFrame, "Invalid ID.");
-            }
-        });
-
-        // Add buttons and text area to the frame
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; categoriesFrame.add(addCategoryButton, gbc);
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2; categoriesFrame.add(editCategoryButton, gbc);
-        gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2; categoriesFrame.add(deleteCategoryButton, gbc);
-        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; categoriesFrame.add(new JScrollPane(categoriesTextArea), gbc);
-
-        categoriesFrame.setVisible(true);
+        billingFrame.setVisible(true);
     }
 
-    // Helper method to find a category by ID
-    private Category findCategoryById(int id) {
-        for (Category category : categories) {
-            if (category.getId() == id) {
-                return category;
+    // Helper method to find customer by ID
+    private Customer findCustomerById(int id) {
+        for (Customer customer : customers) {
+            if (customer.getId() == id) {
+                return customer;
             }
         }
-        return null; // Return null if category not found
+        return null; // Return null if customer not found
     }
 
-    private String getCategoriesData() {
-        StringBuilder data = new StringBuilder("Current Categories:\n");
-        for (Category category : categories) {
-            data.append(category.toString()).append("\n");
+    private String getBillingData() {
+        StringBuilder data = new StringBuilder("Current Bills:\n");
+        for (Bill bill : bills) {
+            data.append(bill.toString()).append("\n");
         }
         return data.toString();
     }
 
-    private void openManageBillingFrame() {
-            JFrame billingFrame = new JFrame("Manage Billing");
-            billingFrame.setSize(500, 500);
-            billingFrame.setLayout(new GridBagLayout());
-            billingFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.insets = new Insets(5, 5, 5, 5); // Adding padding to the components
-
-            // Labels and text fields for billing details
-            JLabel billIdLabel = new JLabel("Bill ID:");
-            JTextField billIdField = new JTextField(20);
-            JLabel customerIdLabel = new JLabel("Customer ID:");
-            JTextField customerIdField = new JTextField(20);
-            JLabel amountLabel = new JLabel("Amount:");
-            JTextField amountField = new JTextField(20);
-            JLabel dateLabel = new JLabel("Date:");
-            JTextField dateField = new JTextField(20);
-
-            JTextArea billingTextArea = new JTextArea(10, 40);
-            billingTextArea.setEditable(false);
-
-            // Arrange components in GridBagLayout
-            gbc.gridx = 0; gbc.gridy = 0; billingFrame.add(billIdLabel, gbc);
-            gbc.gridx = 1; gbc.gridy = 0; billingFrame.add(billIdField, gbc);
-            gbc.gridx = 0; gbc.gridy = 1; billingFrame.add(customerIdLabel, gbc);
-            gbc.gridx = 1; gbc.gridy = 1; billingFrame.add(customerIdField, gbc);
-            gbc.gridx = 0; gbc.gridy = 2; billingFrame.add(amountLabel, gbc);
-            gbc.gridx = 1; gbc.gridy = 2; billingFrame.add(amountField, gbc);
-            gbc.gridx = 0; gbc.gridy = 3; billingFrame.add(dateLabel, gbc);
-            gbc.gridx = 1; gbc.gridy = 3; billingFrame.add(dateField, gbc);
-
-            // Add button to save billing information
-            JButton addBillButton = new JButton("Add Bill");
-            addBillButton.addActionListener(e -> {
-                try {
-                    int billId = Integer.parseInt(billIdField.getText());
-                    int customerId = Integer.parseInt(customerIdField.getText());
-                    double amount = Double.parseDouble(amountField.getText());
-                    String date = dateField.getText();
-
-                    Customer customer = findCustomerById(customerId); // Find customer by ID
-                    if (customer != null) {
-                        Bill bill = new Bill(billId, customer, amount, date);
-                        bills.add(bill);
-                        updateTextArea(billingTextArea, getBillingData());
-                    } else {
-                        JOptionPane.showMessageDialog(billingFrame, "Customer not found.");
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(billingFrame, "Invalid input data.");
-                }
-            });
-
-            // Add button to billing frame
-            gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2; billingFrame.add(addBillButton, gbc);
-            gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; billingFrame.add(new JScrollPane(billingTextArea), gbc);
-
-            billingFrame.setVisible(true);
+    private void saveData() {
+        String folderPath = "C:\\Users\\saadi\\OneDrive\\Desktop\\petsy project\\Petsy"; // Specify your folder path
+        File folder = new File(folderPath);
+    
+        // Ensure the folder exists
+        if (!folder.exists()) {
+            folder.mkdirs(); // Create folder if it doesn't exist
         }
+    
+        try (ObjectOutputStream petStream = new ObjectOutputStream(new FileOutputStream(folderPath + "\\pets.ser"));
+             ObjectOutputStream customerStream = new ObjectOutputStream(new FileOutputStream(folderPath + "\\customers.ser"));
+             ObjectOutputStream billStream = new ObjectOutputStream(new FileOutputStream(folderPath + "\\bills.ser"))) {
+    
+            petStream.writeObject(pets);
+            customerStream.writeObject(customers);
+            billStream.writeObject(bills);
+    
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error saving data: " + e.getMessage());
+        }
+    }
+    
 
-// Helper method to find customer by ID
-        private Customer findCustomerById(int id) {
-            for (Customer customer : customers) {
-                if (customer.getId() == id) {
-                    return customer;
+    private void loadData() {
+        String folderPath = "C:\\Users\\saadi\\OneDrive\\Desktop\\petsy project\\Petsy"; // Specify your folder path
+    
+        try {
+            File petFile = new File(folderPath + "\\pets.ser");
+            if (petFile.exists()) {
+                try (ObjectInputStream petStream = new ObjectInputStream(new FileInputStream(petFile))) {
+                    pets = (ArrayList<Pet>) petStream.readObject();
                 }
             }
-            return null; // Return null if customer not found
-        }
-
-        private String getBillingData() {
-            StringBuilder data = new StringBuilder("Current Bills:\n");
-            for (Bill bill : bills) {
-                data.append(bill.toString()).append("\n");
+    
+            File customerFile = new File(folderPath + "\\customers.ser");
+            if (customerFile.exists()) {
+                try (ObjectInputStream customerStream = new ObjectInputStream(new FileInputStream(customerFile))) {
+                    customers = (ArrayList<Customer>) customerStream.readObject();
+                }
             }
-            return data.toString();
+    
+            File billFile = new File(folderPath + "\\bills.ser");
+            if (billFile.exists()) {
+                try (ObjectInputStream billStream = new ObjectInputStream(new FileInputStream(billFile))) {
+                    bills = (ArrayList<Bill>) billStream.readObject();
+                }
+            }
+    
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
-
-
-        public static void main(String[] args) {
+    }
+    
+    public static void main(String[] args) {
         new PetManagementSystem();
     }
 }
