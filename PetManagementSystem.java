@@ -2,6 +2,8 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import javax.swing.*;
+//import java.awt.image.BufferedImage;
+//import javax.imageio.ImageIO;
 
 // Abstract Pet class
 abstract class AbstractPet implements Serializable {
@@ -113,41 +115,105 @@ class Bill implements Serializable {
 
 // Main class for Pet Management System
 class PetManagementSystem extends JFrame {
+    public static void main(String[] args) {
+        new PetManagementSystem();
+    }
     private ArrayList<Pet> pets = new ArrayList<>();
     private ArrayList<Customer> customers = new ArrayList<>();
-    private ArrayList<Bill> bills = new ArrayList<>();
 
+    private ArrayList<Bill> bills = new ArrayList<>();
+    
     public PetManagementSystem() {
         // Setting up the JFrame
         setTitle("Pet Shop Management System");
-        setSize(500, 400);
+        setSize(750, 550);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new FlowLayout());
+        setLayout(new BorderLayout()); // Use BorderLayout for better panel organization
+    
+        // Create a side panel
+        JPanel sidePanel = new JPanel();
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS)); // Vertical layout for buttons
+        sidePanel.setBackground(new Color(210, 2, 77)); // Cherry Red background
+        sidePanel.setPreferredSize(new Dimension(200, 0)); // Set preferred width (200px), height adjusts automatically
+        
+        //  Add logo to the side panel
+        JLabel logoLabel = new JLabel();
+        logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center alignment
+        ImageIcon logoIcon = new ImageIcon("C:\\Users\\saadi\\Downloads\\petsy logo.png"); // Replace with your logo's path
+        Image scaledImage = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH); // Scale logo
+        logoLabel.setIcon(new ImageIcon(scaledImage));
+        sidePanel.add(Box.createVerticalStrut(20)); // Add spacing above logo
+        sidePanel.add(logoLabel);
 
-        // Adding buttons for each action
-        JButton managePetsButton = new JButton("Manage Pets");
-        JButton manageCustomersButton = new JButton("Manage Customers");
-        JButton manageBillingButton = new JButton("Manage Billing");
-
+        // Create buttons for navigation
+        JButton managePetsButton = createSideButton("-> Manage Pets");
+        JButton manageCustomersButton = createSideButton("-> Manage Customers");
+        JButton manageBillingButton = createSideButton("-> Manage Billing");
+    
+        // Add action listeners for navigation
         managePetsButton.addActionListener(e -> openManagePetsFrame());
         manageCustomersButton.addActionListener(e -> openManageCustomersFrame());
         manageBillingButton.addActionListener(e -> openManageBillingFrame());
+    
+        // Add buttons to the side panel
+        sidePanel.add(Box.createVerticalStrut(20)); // Add spacing at the top
+        sidePanel.add(managePetsButton);
+        sidePanel.add(Box.createVerticalStrut(10)); // Spacing between buttons
+        sidePanel.add(manageCustomersButton);
+        sidePanel.add(Box.createVerticalStrut(10)); // Spacing between buttons
+        sidePanel.add(manageBillingButton);
+        sidePanel.add(Box.createVerticalGlue()); // Push components upwards
+    
+        JPanel mainPanel = new JPanel();
+        mainPanel.setBackground(Color.WHITE); // Set background color
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS)); // Set layout to BoxLayout for vertical stacking
 
-        // Adding buttons to the main frame
-        add(managePetsButton);
-        add(manageCustomersButton);
-        add(manageBillingButton);
+        // Add image
+        JLabel imageLabel = new JLabel();
+        ImageIcon mainImageIcon = new ImageIcon("C:\\Users\\saadi\\Downloads\\welcome.png"); // Path to your image
+        Image mainScaledImage = mainImageIcon.getImage().getScaledInstance(170, 170, Image.SCALE_SMOOTH); // Adjust size as needed
+        imageLabel.setIcon(new ImageIcon(mainScaledImage));
+        imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center align image
 
+        // Add welcome text
+        JLabel welcomeLabel = new JLabel("Welcome to the Pet Shop!");
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD , 20));
+        welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center align text
+
+        // Add components to mainPanel
+        mainPanel.add(Box.createVerticalStrut(20)); // Add spacing at the top
+        mainPanel.add(imageLabel); // Add image
+        mainPanel.add(Box.createVerticalStrut(10)); // Add spacing between image and text
+        mainPanel.add(welcomeLabel); // Add text
+
+    
+        // Add panels to the frame
+        add(sidePanel, BorderLayout.WEST); // Add side panel to the left
+        add(mainPanel, BorderLayout.CENTER); // Main panel in the center
+    
         // Load data from files
         loadData();
-
+    
         setVisible(true);
+    }
+
+    private JButton createSideButton(String text) {
+        JButton button = new JButton(text);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setFocusPainted(false); // Remove focus border when clicked
+        button.setContentAreaFilled(false); // Remove the button's background
+        button.setBorderPainted(false); // Remove the button's border
+        button.setOpaque(false); // Ensure transparency
+        button.setForeground(Color.WHITE); // Set the text color
+        button.setFont(new Font("Arial", Font.BOLD, 14)); // Set the font style and size
+        button.setPreferredSize(new Dimension(200, 40)); // Preferred size for consistent layout
+        return button;
     }
 
     // Helper function to update the JTextArea with current data
     private void updateTextArea(JTextArea textArea, String data) {
         textArea.setText(data);
-    }
+    }    
 
     private void openManagePetsFrame() {
         JFrame petsFrame = new JFrame("Manage Pets");
@@ -206,7 +272,7 @@ class PetManagementSystem extends JFrame {
         gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; petsFrame.add(new JScrollPane(petsTextArea), gbc);
     
         petsFrame.setVisible(true);
-    }    
+    }
 
     private String getPetsData() {
         StringBuilder data = new StringBuilder("Current Pets:\n");
@@ -366,59 +432,45 @@ class PetManagementSystem extends JFrame {
     }
 
     private void saveData() {
-        String folderPath = "C:\\Users\\saadi\\OneDrive\\Desktop\\github(work)\\Petsy>"; // Specify your folder path
-        File folder = new File(folderPath);
-    
-        // Ensure the folder exists
-        if (!folder.exists()) {
-            folder.mkdirs(); // Create folder if it doesn't exist
-        }
-    
-        try (ObjectOutputStream petStream = new ObjectOutputStream(new FileOutputStream(folderPath + "\\pets.ser"));
-             ObjectOutputStream customerStream = new ObjectOutputStream(new FileOutputStream(folderPath + "\\customers.ser"));
-             ObjectOutputStream billStream = new ObjectOutputStream(new FileOutputStream(folderPath + "\\bills.ser"))) {
-    
+        try (ObjectOutputStream petStream = new ObjectOutputStream(new FileOutputStream("pets.ser"));
+             ObjectOutputStream customerStream = new ObjectOutputStream(new FileOutputStream("customers.ser"));
+             ObjectOutputStream billStream = new ObjectOutputStream(new FileOutputStream("bills.ser"))) {
+                //System.out.println(new File("pets.ser").getAbsolutePath());
+
             petStream.writeObject(pets);
             customerStream.writeObject(customers);
             billStream.writeObject(bills);
-    
+
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error saving data: " + e.getMessage());
         }
     }
-    
 
     private void loadData() {
-        String folderPath = "C:\\Users\\saadi\\OneDrive\\Desktop\\github(work)\\Petsy>"; // Specify your folder path
-    
         try {
-            File petFile = new File(folderPath + "\\pets.ser");
+            File petFile = new File("pets.ser");
             if (petFile.exists()) {
                 try (ObjectInputStream petStream = new ObjectInputStream(new FileInputStream(petFile))) {
                     pets = (ArrayList<Pet>) petStream.readObject();
                 }
             }
-    
-            File customerFile = new File(folderPath + "\\customers.ser");
+
+            File customerFile = new File("customers.ser");
             if (customerFile.exists()) {
                 try (ObjectInputStream customerStream = new ObjectInputStream(new FileInputStream(customerFile))) {
                     customers = (ArrayList<Customer>) customerStream.readObject();
                 }
             }
-    
-            File billFile = new File(folderPath + "\\bills.ser");
+
+            File billFile = new File("bills.ser");
             if (billFile.exists()) {
                 try (ObjectInputStream billStream = new ObjectInputStream(new FileInputStream(billFile))) {
                     bills = (ArrayList<Bill>) billStream.readObject();
                 }
             }
-    
+
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-    
-    public static void main(String[] args) {
-        new PetManagementSystem();
     }
 }
