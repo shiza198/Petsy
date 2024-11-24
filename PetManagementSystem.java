@@ -142,8 +142,7 @@ class PetManagementSystem extends JFrame {
         ImageIcon logoIcon = new ImageIcon("C:\\Users\\saadi\\Downloads\\petsy logo.png"); // Replace with your logo's path
         Image scaledImage = logoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH); // Scale logo
         logoLabel.setIcon(new ImageIcon(scaledImage));
-        sidePanel.add(Box.createVerticalStrut(20)); // Add spacing above logo
-        sidePanel.add(logoLabel);
+        
 
         // Create buttons for navigation
         JButton managePetsButton = createSideButton("-> Manage Pets");
@@ -155,14 +154,18 @@ class PetManagementSystem extends JFrame {
         manageCustomersButton.addActionListener(e -> openManageCustomersFrame());
         manageBillingButton.addActionListener(e -> openManageBillingFrame());
     
-        // Add buttons to the side panel
-        sidePanel.add(Box.createVerticalStrut(20)); // Add spacing at the top
+       // Add buttons to the side panel
+        //sidePanel.add(Box.createVerticalGlue()); // Push components upwards to center
+        sidePanel.add(Box.createVerticalStrut(80)); // Add spacing above logo
+        sidePanel.add(logoLabel);
+        sidePanel.add(Box.createVerticalStrut(30)); // Add spacing at the top
         sidePanel.add(managePetsButton);
         sidePanel.add(Box.createVerticalStrut(10)); // Spacing between buttons
         sidePanel.add(manageCustomersButton);
         sidePanel.add(Box.createVerticalStrut(10)); // Spacing between buttons
         sidePanel.add(manageBillingButton);
-        sidePanel.add(Box.createVerticalGlue()); // Push components upwards
+        sidePanel.add(Box.createVerticalGlue()); // Push components downwards to center
+
     
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(Color.WHITE); // Set background color
@@ -174,17 +177,43 @@ class PetManagementSystem extends JFrame {
         Image mainScaledImage = mainImageIcon.getImage().getScaledInstance(170, 170, Image.SCALE_SMOOTH); // Adjust size as needed
         imageLabel.setIcon(new ImageIcon(mainScaledImage));
         imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center align image
-
+        
         // Add welcome text
         JLabel welcomeLabel = new JLabel("Welcome to the Pet Shop!");
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD , 20));
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 20));
         welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center align text
 
+        // Add "About Us" button
+        JButton aboutUsButton = new JButton("About Us");
+        aboutUsButton.setAlignmentX(Component.CENTER_ALIGNMENT); // Center align the button
+        aboutUsButton.setFocusPainted(false); // Remove focus border when clicked
+        aboutUsButton.setContentAreaFilled(false); // Remove button's background
+        aboutUsButton.setOpaque(true); // Ensure custom background is visible
+        aboutUsButton.setBackground(new Color(210, 2, 77)); // Cherry Red background
+        aboutUsButton.setForeground(Color.WHITE); // White text
+        aboutUsButton.setFont(new Font("Arial", Font.BOLD, 14)); // Font style and size
+        aboutUsButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15)); // Padding for better appearance
+        aboutUsButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(210, 2, 77), 2), 
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        )); // Add rounded corners
+
+        // Add ActionListener to display a message
+        aboutUsButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Welcome to our Pet Shop!\nWe care about your pets and provide the best services.", "About Us", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+    
         // Add components to mainPanel
-        mainPanel.add(Box.createVerticalStrut(20)); // Add spacing at the top
+        //mainPanel.add(Box.createVerticalGlue()); // Push components to vertical center
+        mainPanel.add(Box.createVerticalStrut(80)); // Spacing above image
         mainPanel.add(imageLabel); // Add image
-        mainPanel.add(Box.createVerticalStrut(10)); // Add spacing between image and text
-        mainPanel.add(welcomeLabel); // Add text
+        mainPanel.add(Box.createVerticalStrut(10)); // Spacing between image and welcome text
+        mainPanel.add(welcomeLabel); // Add welcome text
+        mainPanel.add(Box.createVerticalStrut(30)); // Spacing before the "About Us" button
+        mainPanel.add(aboutUsButton); // Add the "About Us" button
+        mainPanel.add(Box.createVerticalGlue()); // Push components to vertical center
+
 
     
         // Add panels to the frame
