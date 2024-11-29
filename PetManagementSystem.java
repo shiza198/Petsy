@@ -311,15 +311,21 @@ class PetManagementSystem extends JFrame {
         addPetButton.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(idField.getText());
+                if (!isPetIdUnique(id)) {
+                    JOptionPane.showMessageDialog(this, "Pet ID already exists! Please choose a unique ID.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return; // Do not proceed if ID is not unique
+                }
+                
                 String name = nameField.getText();
                 String type = (String) typeComboBox.getSelectedItem(); // Get selected type from JComboBox
                 String owner = ownerField.getText();
                 double price = Double.parseDouble(priceField.getText()); // Get price from input
+                
                 Pet pet = new Pet(id, name, type, owner, price);
                 pets.add(pet);
                 updateTextArea(petsTextArea, getPetsData());
                 saveData();
-                clearPetFields(idField, nameField, typeComboBox, ownerField, priceField); // Pass typeComboBox here
+                clearPetFields(idField, nameField, typeComboBox, ownerField, priceField); // Clear the input fields
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid input data.");
             }
@@ -344,6 +350,15 @@ class PetManagementSystem extends JFrame {
         priceField.setText("");
     }
 
+    private boolean isPetIdUnique(int id) {
+        for (Pet pet : pets) {
+            if (pet.getId() == id) {
+                return false; // Pet ID already exists
+            }
+        }
+        return true; // Pet ID is unique
+    }
+    
     private String getPetsData() {
         StringBuilder data = new StringBuilder("Current Pets:\n");
         for (Pet pet : pets) {
