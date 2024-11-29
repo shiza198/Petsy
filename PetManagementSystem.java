@@ -2,6 +2,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import javax.swing.*;
+import java.util.regex.Pattern;
 
 // Abstract Pet class
 abstract class AbstractPet implements Serializable {
@@ -63,7 +64,6 @@ class Pet extends AbstractPet {
     }
 }
 
-// Customer class
 class Customer implements Serializable {
     private int id;
     private String name;
@@ -71,6 +71,9 @@ class Customer implements Serializable {
     private String phone;
 
     public Customer(int id, String name, String email, String phone) {
+        if (!isValidEmail(email)) {
+            throw new IllegalArgumentException("Invalid email format.");
+        }
         this.id = id;
         this.name = name;
         this.email = email;
@@ -78,17 +81,28 @@ class Customer implements Serializable {
     }
 
     public void updateDetails(String name, String email, String phone) {
+        if (!isValidEmail(email)) {
+            throw new IllegalArgumentException("Invalid email format.");
+        }
         this.name = name;
         this.email = email;
         this.phone = phone;
     }
 
+    @Override
     public String toString() {
         return "Customer ID: " + id + ", Name: " + name + ", Email: " + email + ", Phone: " + phone;
     }
 
     public int getId() {
         return id;
+    }
+
+    public static boolean isValidEmail(String email) {
+        // Regex pattern for validating email
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        return email != null && pattern.matcher(email).matches();
     }
 }
 
@@ -376,13 +390,21 @@ class PetManagementSystem extends JFrame {
                 String name = nameField.getText();
                 String email = emailField.getText();
                 String phone = phoneField.getText();
+                
+                if (!Customer.isValidEmail(email)) {
+                    JOptionPane.showMessageDialog(this, "Invalid email format. Please enter a valid email.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+        
                 Customer customer = new Customer(id, name, email, phone);
                 customers.add(customer);
                 updateTextArea(customersTextArea, getCustomersData());
                 saveData();
                 clearCustomerFields(idField, nameField, emailField, phoneField);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid ID.");
+                JOptionPane.showMessageDialog(this, "Invalid ID.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
