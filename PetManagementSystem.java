@@ -1,9 +1,8 @@
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
+import javax.swing.*;
 
 // Abstract Pet class
 abstract class AbstractPet implements Serializable {
@@ -474,7 +473,7 @@ class PetManagementSystem extends JFrame {
         mainPanel.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5); // Adding padding to the components
-
+    
         // Labels and text fields for billing details
         JLabel billIdLabel = new JLabel("Bill ID:");
         JTextField billIdField = new JTextField(20);
@@ -486,11 +485,11 @@ class PetManagementSystem extends JFrame {
         JTextField quantityField = new JTextField(20);
         JLabel dateLabel = new JLabel("Date:");
         JTextField dateField = new JTextField(20);
-
+    
         JTextArea billingTextArea = new JTextArea(10, 40);
         billingTextArea.setEditable(false);
         billingTextArea.setText(getBillingData());
-
+    
         // Arrange components in GridBagLayout
         gbc.gridx = 0; gbc.gridy = 0; mainPanel.add(billIdLabel, gbc);
         gbc.gridx = 1; gbc.gridy = 0; mainPanel.add(billIdField, gbc);
@@ -502,7 +501,7 @@ class PetManagementSystem extends JFrame {
         gbc.gridx = 1; gbc.gridy = 3; mainPanel.add(quantityField, gbc);
         gbc.gridx = 0; gbc.gridy = 4; mainPanel.add(dateLabel, gbc);
         gbc.gridx = 1; gbc.gridy = 4; mainPanel.add(dateField, gbc);
-
+    
         // Add button to save billing information
         JButton addBillButton = new JButton("Add Bill");
         addBillButton.addActionListener(e -> {
@@ -512,12 +511,12 @@ class PetManagementSystem extends JFrame {
                     JOptionPane.showMessageDialog(this, "Bill ID already exists! Please choose a unique ID.", "Error", JOptionPane.ERROR_MESSAGE);
                     return; // Do not proceed if ID is not unique
                 }
-
+    
                 int customerId = Integer.parseInt(customerIdField.getText());
                 int petId = Integer.parseInt(petIdField.getText());
                 int quantity = Integer.parseInt(quantityField.getText());
                 String date = dateField.getText();
-
+    
                 Customer customer = findCustomerById(customerId); // Find customer by ID
                 Pet pet = findPetById(petId); // Find pet by ID
                 if (customer != null && pet != null) {
@@ -533,17 +532,72 @@ class PetManagementSystem extends JFrame {
                 JOptionPane.showMessageDialog(this, "Invalid input data.");
             }
         });
+    
+        // Add button to show receipt
+        JButton showReceiptButton = new JButton("Show Receipt");
+        showReceiptButton.addActionListener(e -> {
+            String billIdText = billIdField.getText(); // Get the text from the field
 
+            // Check if the bill ID field is empty
+            if (billIdText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a Bill ID.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Exit the method if the field is empty
+            }
+
+            try {
+                int billId = Integer.parseInt(billIdText); // Parse the bill ID
+                Bill bill = findBillById(billId);
+                if (bill != null) {
+                    // Create a new JFrame for the receipt
+                    JFrame receiptFrame = new JFrame("Bill Receipt");
+                    receiptFrame.setSize(400, 300);
+                    receiptFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    receiptFrame.setBackground(Color.WHITE);
+
+                    JPanel receiptPanel = new JPanel();
+                    receiptPanel.setBackground(Color.WHITE);
+                    receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
+
+                    // Add receipt details
+                    JLabel receiptLabel = new JLabel("<html><h2>Bill Receipt</h2><br>" + bill.toString() + "</html>");
+                    receiptLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    receiptPanel.add(receiptLabel);
+
+                    // Add close button
+                    JButton closeButton = new JButton("Close");
+                    closeButton.addActionListener(event -> receiptFrame.dispose());
+                    receiptPanel.add(closeButton);
+
+                    receiptFrame.add(receiptPanel);
+                    receiptFrame.setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Bill not found.");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid Bill ID. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    
         // Add buttons to main panel
         gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; mainPanel.add(addBillButton, gbc);
+        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 2; mainPanel.add(showReceiptButton, gbc);
         gbc.gridx = 0; gbc.gridy = 7; mainPanel.add(new JScrollPane(billingTextArea), gbc);
-
+    
         // Update the main panel
         this.getContentPane().removeAll();
         this.add(createSidePanel(), BorderLayout.WEST);
         this.add(mainPanel, BorderLayout.CENTER);
         this.revalidate();
         this.repaint();
+    }
+    
+    private Bill findBillById(int id) {
+        for (Bill bill : bills) {
+            if (bill.getId() == id) {
+                return bill;
+            }
+        }
+        return null; // Return null if bill not found
     }
 
     // Method to check if Bill ID is unique
