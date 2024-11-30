@@ -1,8 +1,9 @@
-import java.awt.*;
-import java.io.*;
-import java.util.ArrayList;
 import javax.swing.*;
-import java.util.regex.Pattern;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+import java.util.regex.*;
 
 // Abstract Pet class
 abstract class AbstractPet implements Serializable {
@@ -123,7 +124,10 @@ class Bill implements Serializable {
         this.amount = pet.getPrice() * quantity;
         this.date = date;
     }
-
+    // Getter for Bill ID
+    public int getId() {
+        return id; // Return the Bill ID
+    }
     // Method to calculate total amount
     public double calculateTotalAmount() {
         return this.amount * this.quantity; // Total amount based on quantity
@@ -315,12 +319,12 @@ class PetManagementSystem extends JFrame {
                     JOptionPane.showMessageDialog(this, "Pet ID already exists! Please choose a unique ID.", "Error", JOptionPane.ERROR_MESSAGE);
                     return; // Do not proceed if ID is not unique
                 }
-                
+
                 String name = nameField.getText();
                 String type = (String) typeComboBox.getSelectedItem(); // Get selected type from JComboBox
                 String owner = ownerField.getText();
                 double price = Double.parseDouble(priceField.getText()); // Get price from input
-                
+
                 Pet pet = new Pet(id, name, type, owner, price);
                 pets.add(pet);
                 updateTextArea(petsTextArea, getPetsData());
@@ -358,7 +362,7 @@ class PetManagementSystem extends JFrame {
         }
         return true; // Pet ID is unique
     }
-    
+
     private String getPetsData() {
         StringBuilder data = new StringBuilder("Current Pets:\n");
         for (Pet pet : pets) {
@@ -402,15 +406,20 @@ class PetManagementSystem extends JFrame {
         addCustomerButton.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(idField.getText());
+                if (!isCustomerIdUnique(id)) {
+                    JOptionPane.showMessageDialog(this, "Customer ID already exists! Please choose a unique ID.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return; // Do not proceed if ID is not unique
+                }
+
                 String name = nameField.getText();
                 String email = emailField.getText();
                 String phone = phoneField.getText();
-                
+
                 if (!Customer.isValidEmail(email)) {
                     JOptionPane.showMessageDialog(this, "Invalid email format. Please enter a valid email.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-        
+
                 Customer customer = new Customer(id, name, email, phone);
                 customers.add(customer);
                 updateTextArea(customersTextArea, getCustomersData());
@@ -428,11 +437,21 @@ class PetManagementSystem extends JFrame {
         gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 2; mainPanel.add(new JScrollPane(customersTextArea), gbc);
 
         // Update the main panel
-        this.getContentPane(). removeAll();
+        this.getContentPane().removeAll();
         this.add(createSidePanel(), BorderLayout.WEST);
         this.add(mainPanel, BorderLayout.CENTER);
         this.revalidate();
         this.repaint();
+    }
+
+    // Method to check if Customer ID is unique
+    private boolean isCustomerIdUnique(int id) {
+        for (Customer customer : customers) {
+            if (customer.getId() == id) {
+                return false; // Customer ID already exists
+            }
+        }
+        return true; // Customer ID is unique
     }
 
     private void clearCustomerFields(JTextField idField, JTextField nameField, JTextField emailField, JTextField phoneField) {
@@ -489,6 +508,11 @@ class PetManagementSystem extends JFrame {
         addBillButton.addActionListener(e -> {
             try {
                 int billId = Integer.parseInt(billIdField.getText());
+                if (!isBillIdUnique(billId)) {
+                    JOptionPane.showMessageDialog(this, "Bill ID already exists! Please choose a unique ID.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return; // Do not proceed if ID is not unique
+                }
+
                 int customerId = Integer.parseInt(customerIdField.getText());
                 int petId = Integer.parseInt(petIdField.getText());
                 int quantity = Integer.parseInt(quantityField.getText());
@@ -509,6 +533,7 @@ class PetManagementSystem extends JFrame {
                 JOptionPane.showMessageDialog(this, "Invalid input data.");
             }
         });
+
         // Add buttons to main panel
         gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; mainPanel.add(addBillButton, gbc);
         gbc.gridx = 0; gbc.gridy = 7; mainPanel.add(new JScrollPane(billingTextArea), gbc);
@@ -519,6 +544,16 @@ class PetManagementSystem extends JFrame {
         this.add(mainPanel, BorderLayout.CENTER);
         this.revalidate();
         this.repaint();
+    }
+
+    // Method to check if Bill ID is unique
+    private boolean isBillIdUnique(int id) {
+        for (Bill bill : bills) {
+            if (bill.getId() == id) {
+                return false; // Bill ID already exists
+            }
+        }
+        return true; // Bill ID is unique
     }
 
     private void clearBillingFields(JTextField billIdField, JTextField customerIdField, JTextField petIdField, JTextField quantityField, JTextField dateField) {
