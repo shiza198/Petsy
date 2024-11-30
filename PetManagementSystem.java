@@ -242,7 +242,7 @@ class PetManagementSystem extends JFrame {
         aboutUsButton.setFocusPainted(false); // Remove focus border when clicked
         aboutUsButton.setContentAreaFilled(false); // Remove button's background
         aboutUsButton.setOpaque(true); // Ensure custom background is visible
-        aboutUsButton.setBackground(new Color (210, 2, 77)); // Cherry Red background
+        aboutUsButton.setBackground(new Color(210, 2, 77)); // Cherry Red background
         aboutUsButton.setForeground(Color.WHITE); // White text
         aboutUsButton.setFont(new Font("Arial", Font.BOLD, 14)); // Font style and size
         aboutUsButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15)); // Padding for better appearance
@@ -250,6 +250,11 @@ class PetManagementSystem extends JFrame {
                 BorderFactory.createLineBorder(new Color(210, 2, 77), 2),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
         )); // Add rounded corners
+
+// Add ActionListener to display a message
+aboutUsButton.addActionListener(e -> {
+    JOptionPane.showMessageDialog(this, "Welcome to our Pet Shop!\nWe care about your pets and provide the best services.", "About Us", JOptionPane.INFORMATION_MESSAGE);
+});
 
         // Add ActionListener to display a message
         aboutUsButton.addActionListener(e -> {
@@ -311,6 +316,17 @@ class PetManagementSystem extends JFrame {
         gbc.gridx = 1; gbc.gridy = 4; mainPanel.add(priceField, gbc);
         // Add button to save pet
         JButton addPetButton = new JButton("Add Pet");
+        addPetButton.setFocusPainted(false); // Remove focus border
+        addPetButton.setContentAreaFilled(false); // Remove default button background
+        addPetButton.setOpaque(true); // Enable custom background
+        addPetButton.setBackground(new Color(210, 2, 77)); // Set cherry red background
+        addPetButton.setForeground(Color.WHITE); // Set text color to white
+        addPetButton.setFont(new Font("Arial", Font.BOLD, 14)); // Set font style and size
+        addPetButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(210, 2, 77), 2), // Border with cherry red
+                BorderFactory.createEmptyBorder(5, 10, 5, 10) // Padding inside the border
+        ));
+
         addPetButton.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(idField.getText());
@@ -333,6 +349,7 @@ class PetManagementSystem extends JFrame {
                 JOptionPane.showMessageDialog(this, "Invalid input data.");
             }
         });
+
 
         // Add buttons to main panel
         gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; mainPanel.add(addPetButton, gbc);
@@ -402,6 +419,17 @@ class PetManagementSystem extends JFrame {
 
         // Add button to save customer
         JButton addCustomerButton = new JButton("Add Customer");
+        addCustomerButton.setFocusPainted(false); // Remove focus border
+        addCustomerButton.setContentAreaFilled(false); // Remove default button background
+        addCustomerButton.setOpaque(true); // Enable custom background
+        addCustomerButton.setBackground(new Color(210, 2, 77)); // Set cherry red background
+        addCustomerButton.setForeground(Color.WHITE); // Set text color to white
+        addCustomerButton.setFont(new Font("Arial", Font.BOLD, 14)); // Set font style and size
+        addCustomerButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(210, 2, 77), 2), // Border with cherry red
+                BorderFactory.createEmptyBorder(5, 10, 5, 10) // Padding inside the border
+        ));
+
         addCustomerButton.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(idField.getText());
@@ -430,6 +458,7 @@ class PetManagementSystem extends JFrame {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
 
         // Add buttons to main panel
         gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2; mainPanel.add(addCustomerButton, gbc);
@@ -502,8 +531,16 @@ class PetManagementSystem extends JFrame {
         gbc.gridx = 0; gbc.gridy = 4; mainPanel.add(dateLabel, gbc);
         gbc.gridx = 1; gbc.gridy = 4; mainPanel.add(dateField, gbc);
     
+     
         // Add button to save billing information
         JButton addBillButton = new JButton("Add Bill");
+        addBillButton.setFocusPainted(false); // Remove focus border
+        addBillButton.setContentAreaFilled(true); // Use custom button background
+        addBillButton.setOpaque(true); // Enable custom background
+        addBillButton.setBackground(new Color(210, 2, 77)); // Cherry red background
+        addBillButton.setForeground(Color.WHITE); // White text
+        addBillButton.setFont(new Font("Arial", Font.BOLD, 14)); // Bold font
+        addBillButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Remove any visible border
         addBillButton.addActionListener(e -> {
             try {
                 int billId = Integer.parseInt(billIdField.getText());
@@ -511,12 +548,12 @@ class PetManagementSystem extends JFrame {
                     JOptionPane.showMessageDialog(this, "Bill ID already exists! Please choose a unique ID.", "Error", JOptionPane.ERROR_MESSAGE);
                     return; // Do not proceed if ID is not unique
                 }
-    
+
                 int customerId = Integer.parseInt(customerIdField.getText());
                 int petId = Integer.parseInt(petIdField.getText());
                 int quantity = Integer.parseInt(quantityField.getText());
                 String date = dateField.getText();
-    
+
                 Customer customer = findCustomerById(customerId); // Find customer by ID
                 Pet pet = findPetById(petId); // Find pet by ID
                 if (customer != null && pet != null) {
@@ -532,13 +569,19 @@ class PetManagementSystem extends JFrame {
                 JOptionPane.showMessageDialog(this, "Invalid input data.");
             }
         });
-    
+
         // Add button to show receipt
         JButton showReceiptButton = new JButton("Show Receipt");
+        showReceiptButton.setFocusPainted(false); // Remove focus border
+        showReceiptButton.setContentAreaFilled(true); // Use custom button background
+        showReceiptButton.setOpaque(true); // Enable custom background
+        showReceiptButton.setBackground(new Color(210, 2, 77)); // Cherry red background
+        showReceiptButton.setForeground(Color.WHITE); // White text
+        showReceiptButton.setFont(new Font("Arial", Font.BOLD, 14)); // Bold font
+        showReceiptButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Remove any visible border
         showReceiptButton.addActionListener(e -> {
             String billIdText = billIdField.getText(); // Get the text from the field
 
-            // Check if the bill ID field is empty
             if (billIdText.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please enter a Bill ID.", "Error", JOptionPane.ERROR_MESSAGE);
                 return; // Exit the method if the field is empty
@@ -548,7 +591,6 @@ class PetManagementSystem extends JFrame {
                 int billId = Integer.parseInt(billIdText); // Parse the bill ID
                 Bill bill = findBillById(billId);
                 if (bill != null) {
-                    // Create a new JFrame for the receipt
                     JFrame receiptFrame = new JFrame("Bill Receipt");
                     receiptFrame.setSize(400, 300);
                     receiptFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -558,12 +600,10 @@ class PetManagementSystem extends JFrame {
                     receiptPanel.setBackground(Color.WHITE);
                     receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
 
-                    // Add receipt details
                     JLabel receiptLabel = new JLabel("<html><h2>Bill Receipt</h2><br>" + bill.toString() + "</html>");
                     receiptLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
                     receiptPanel.add(receiptLabel);
 
-                    // Add close button
                     JButton closeButton = new JButton("Close");
                     closeButton.addActionListener(event -> receiptFrame.dispose());
                     receiptPanel.add(closeButton);
@@ -577,10 +617,21 @@ class PetManagementSystem extends JFrame {
                 JOptionPane.showMessageDialog(this, "Invalid Bill ID. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+
     
         // Add buttons to main panel
-        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2; mainPanel.add(addBillButton, gbc);
-        gbc.gridx = 0; gbc.gridy = 6; gbc.gridwidth = 2; mainPanel.add(showReceiptButton, gbc);
+        // Create a panel to hold both buttons side by side
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        buttonPanel.add(addBillButton);
+        buttonPanel.add(showReceiptButton);
+
+        // Add the button panel to the main panel
+        gbc.gridx = 0; 
+        gbc.gridy = 5; 
+        gbc.gridwidth = 2; 
+        mainPanel.add(buttonPanel, gbc);
+
         gbc.gridx = 0; gbc.gridy = 7; mainPanel.add(new JScrollPane(billingTextArea), gbc);
     
         // Update the main panel
