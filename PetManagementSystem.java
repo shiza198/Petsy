@@ -700,7 +700,7 @@ class PetManagementSystem extends JFrame {
                 Bill bill = findBillById(billId);
                 if (bill != null) {
                     JFrame receiptFrame = new JFrame("Bill Receipt");
-                    receiptFrame.setSize(300, 350);
+                    receiptFrame.setSize(300, 500);
                     receiptFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     receiptFrame.setBackground(Color.WHITE);
         
@@ -708,8 +708,32 @@ class PetManagementSystem extends JFrame {
                     receiptPanel.setBackground(Color.WHITE);
                     receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
         
+                    // Panel for heading and logo
+                    JPanel headerPanel = new JPanel(new BorderLayout());
+                    headerPanel.setBackground(Color.WHITE);
+        
+                    // Adjust heading label position slightly to the right
+                    JLabel headingLabel = new JLabel("Bill Receipt", SwingConstants.CENTER);
+                    headingLabel.setFont(new Font("Arial", Font.BOLD, 18));
+                    headingLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add padding around heading
+                    headerPanel.add(headingLabel, BorderLayout.CENTER);
+        
+                    // Adjust logo position and size
+                    ImageIcon originalLogoIcon = new ImageIcon("c:\\Users\\saadi\\Downloads\\petsy.png"); // Replace with actual path
+                    Image resizedLogo = originalLogoIcon.getImage().getScaledInstance(60, 70, Image.SCALE_SMOOTH); // Resize logo
+                    ImageIcon resizedLogoIcon = new ImageIcon(resizedLogo);
+                    JLabel logoLabel = new JLabel(resizedLogoIcon);
+
+                    // Increase the top padding to move the logo downward
+                    logoLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 5, 0)); // Top padding increased to 20
+                    headerPanel.add(logoLabel, BorderLayout.NORTH);
+
+        
+                    // Add header panel to the main receipt panel
+                    receiptPanel.add(headerPanel);
+        
+                    // Create receipt text (center-aligned)
                     String receiptText = "<html><div style='text-align: center;'>" +
-                            "<h2 style='margin-bottom: 15px;'>Bill Receipt</h2>" +
                             "<p style='margin-bottom: 10px;'>Bill ID: " + bill.getId() + "</p>" +
                             "<p style='margin-bottom: 10px;'>Customer Name: " + bill.getCustomer().getName() + "</p>" +
                             "<p style='margin-bottom: 10px;'>Pet Name: " + bill.getPet().getName() + "</p>" +
@@ -718,12 +742,14 @@ class PetManagementSystem extends JFrame {
                             "<p style='margin-bottom: 10px;'>Amount: $" + bill.calculateTotalAmount() + "</p>" +
                             "</div></html>";
         
-                    JLabel receiptLabel = new JLabel(receiptText, SwingConstants.CENTER);
+                    // Receipt text label
+                    JLabel receiptLabel = new JLabel(receiptText, SwingConstants.CENTER); // Center-aligned text
                     receiptLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
                     receiptPanel.add(receiptLabel);
         
-                    receiptPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add space below receipt text
+                    receiptPanel.add(Box.createRigidArea(new Dimension(0, 10))); // Add space below receipt text
         
+                    // Close button
                     JButton closeButton = new JButton("Close");
                     closeButton.setFocusPainted(false);
                     closeButton.setContentAreaFilled(true);
@@ -731,10 +757,15 @@ class PetManagementSystem extends JFrame {
                     closeButton.setBackground(new Color(210, 2, 77)); // Cherry red background
                     closeButton.setForeground(Color.WHITE); // White text
                     closeButton.setFont(new Font("Arial", Font.BOLD, 14)); // Bold font
-                    closeButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // No border
+                    closeButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Add padding inside button
                     closeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-                    closeButton.addActionListener(event -> receiptFrame.dispose());
+        
+                    // Add space above the button to move it up from the bottom
+                    receiptPanel.add(Box.createVerticalGlue());
                     receiptPanel.add(closeButton);
+                    receiptPanel.add(Box.createRigidArea(new Dimension(0, 30))); // Add space below button
+        
+                    closeButton.addActionListener(event -> receiptFrame.dispose());
         
                     receiptFrame.add(receiptPanel);
                     receiptFrame.setVisible(true);
@@ -745,6 +776,8 @@ class PetManagementSystem extends JFrame {
                 JOptionPane.showMessageDialog(this, "Invalid Bill ID. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+        
+        
         
         
 
