@@ -3,6 +3,8 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 import javax.swing.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 // Abstract Pet class
 abstract class AbstractPet implements Serializable {
@@ -141,15 +143,17 @@ class Bill implements Serializable {
     private double amount;
     private String date;
 
+    // Constructor with date validation
     public Bill(int id, Customer customer, Pet pet, int quantity, String date) {
         this.id = id;
         this.customer = customer;
         this.pet = pet;
         this.quantity = quantity;
         this.amount = pet.getPrice() * quantity;
-        this.date = date;
+        setDate(date); // Set date with validation
     }
 
+    // Getters
     public int getId() {
         return id;
     }
@@ -174,13 +178,33 @@ class Bill implements Serializable {
         return amount; // Total amount already calculated during initialization
     }
 
+    // Date validation and setter
+    public void setDate(String date) {
+        if (isValidDate(date)) {
+            this.date = date;
+        } else {
+            throw new IllegalArgumentException("Invalid date format. Please use dd/MM/yyyy.");
+        }
+    }
+
+    // Date validation method
+    private boolean isValidDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateFormat.setLenient(false); // Ensure strict parsing
+        try {
+            dateFormat.parse(date); // Attempt to parse the date
+            return true; // Valid date
+        } catch (ParseException e) {
+            return false; // Invalid date
+        }
+    }
+
     @Override
     public String toString() {
         return "Bill ID: " + id + ", Customer: " + customer + ", Pet: " + pet.getName() +
                ", Quantity: " + quantity + ", Amount: $" + calculateTotalAmount() + ", Date: " + date;
     }
 }
-
 
 // Main class for Pet Management System
 class PetManagementSystem extends JFrame {
@@ -578,77 +602,81 @@ class PetManagementSystem extends JFrame {
     }
 
     private void showManageBillingPage() {
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(Color.WHITE);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5); // Adding padding to the components
-    
-        // Labels and text fields for billing details
-        JLabel billIdLabel = new JLabel("Bill ID:");
-        JTextField billIdField = new JTextField(20);
-        JLabel customerIdLabel = new JLabel("Customer ID:");
-        JTextField customerIdField = new JTextField(20);
-        JLabel petIdLabel = new JLabel("Pet ID:"); // New field for Pet ID
-        JTextField petIdField = new JTextField(20);
-        JLabel quantityLabel = new JLabel("Quantity:"); // New field for Quantity
-        JTextField quantityField = new JTextField(20);
-        JLabel dateLabel = new JLabel("Date:");
-        JTextField dateField = new JTextField(20);
-    
-        JTextArea billingTextArea = new JTextArea(10, 40);
-        billingTextArea.setEditable(false);
-        billingTextArea.setText(getBillingData());
-    
-        // Arrange components in GridBagLayout
-        gbc.gridx = 0; gbc.gridy = 0; mainPanel.add(billIdLabel, gbc);
-        gbc.gridx = 1; gbc.gridy = 0; mainPanel.add(billIdField, gbc);
-        gbc.gridx = 0; gbc.gridy = 1; mainPanel.add(customerIdLabel, gbc);
-        gbc.gridx = 1; gbc.gridy = 1; mainPanel.add(customerIdField, gbc);
-        gbc.gridx = 0; gbc.gridy = 2; mainPanel.add(petIdLabel, gbc);
-        gbc.gridx = 1; gbc.gridy = 2; mainPanel.add(petIdField, gbc);
-        gbc.gridx = 0; gbc.gridy = 3; mainPanel.add(quantityLabel, gbc);
-        gbc.gridx = 1; gbc.gridy = 3; mainPanel.add(quantityField, gbc);
-        gbc.gridx = 0; gbc.gridy = 4; mainPanel.add(dateLabel, gbc);
-        gbc.gridx = 1; gbc.gridy = 4; mainPanel.add(dateField, gbc);
-    
-     
-        // Add button to save billing information
-        JButton addBillButton = new JButton("Add Bill");
-        addBillButton.setFocusPainted(false); // Remove focus border
-        addBillButton.setContentAreaFilled(true); // Use custom button background
-        addBillButton.setOpaque(true); // Enable custom background
-        addBillButton.setBackground(new Color(210, 2, 77)); // Cherry red background
-        addBillButton.setForeground(Color.WHITE); // White text
-        addBillButton.setFont(new Font("Arial", Font.BOLD, 14)); // Bold font
-        addBillButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Remove any visible border
-        addBillButton.addActionListener(e -> {
-            try {
-                int billId = Integer.parseInt(billIdField.getText());
-                if (!isBillIdUnique(billId)) {
-                    JOptionPane.showMessageDialog(this, "Bill ID already exists! Please choose a unique ID.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return; // Do not proceed if ID is not unique
-                }
+    JPanel mainPanel = new JPanel(new GridBagLayout());
+    mainPanel.setBackground(Color.WHITE);
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(5, 5, 5, 5); // Adding padding to the components
 
-                int customerId = Integer.parseInt(customerIdField.getText());
-                int petId = Integer.parseInt(petIdField.getText());
-                int quantity = Integer.parseInt(quantityField.getText());
-                String date = dateField.getText();
+    // Labels and text fields for billing details
+    JLabel billIdLabel = new JLabel("Bill ID:");
+    JTextField billIdField = new JTextField(20);
+    JLabel customerIdLabel = new JLabel("Customer ID:");
+    JTextField customerIdField = new JTextField(20);
+    JLabel petIdLabel = new JLabel("Pet ID:"); // New field for Pet ID
+    JTextField petIdField = new JTextField(20);
+    JLabel quantityLabel = new JLabel("Quantity:"); // New field for Quantity
+    JTextField quantityField = new JTextField(20);
+    JLabel dateLabel = new JLabel("Date:");
+    JTextField dateField = new JTextField(20);
 
-                Customer customer = findCustomerById(customerId); // Find customer by ID
-                Pet pet = findPetById(petId); // Find pet by ID
-                if (customer != null && pet != null) {
-                    Bill bill = new Bill(billId, customer, pet, quantity, date);
-                    bills.add(bill);
-                    updateTextArea(billingTextArea, getBillingData());
-                    saveData();
-                    clearBillingFields(billIdField, customerIdField, petIdField, quantityField, dateField);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Customer or pet not found.");
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Invalid input data.");
+    JTextArea billingTextArea = new JTextArea(10, 40);
+    billingTextArea.setEditable(false);
+    billingTextArea.setText(getBillingData());
+
+    // Arrange components in GridBagLayout
+    gbc.gridx = 0; gbc.gridy = 0; mainPanel.add(billIdLabel, gbc);
+    gbc.gridx = 1; gbc.gridy = 0; mainPanel.add(billIdField, gbc);
+    gbc.gridx = 0; gbc.gridy = 1; mainPanel.add(customerIdLabel, gbc);
+    gbc.gridx = 1; gbc.gridy = 1; mainPanel.add(customerIdField, gbc);
+    gbc.gridx = 0; gbc.gridy = 2; mainPanel.add(petIdLabel, gbc);
+    gbc.gridx = 1; gbc.gridy = 2; mainPanel.add(petIdField, gbc);
+    gbc.gridx = 0; gbc.gridy = 3; mainPanel.add(quantityLabel, gbc);
+    gbc.gridx = 1; gbc.gridy = 3; mainPanel.add(quantityField, gbc);
+    gbc.gridx = 0; gbc.gridy = 4; mainPanel.add(dateLabel, gbc);
+    gbc.gridx = 1; gbc.gridy = 4; mainPanel.add(dateField, gbc);
+
+    // Add button to save billing information
+    JButton addBillButton = new JButton("Add Bill");
+    addBillButton.setFocusPainted(false);
+    addBillButton.setContentAreaFilled(true);
+    addBillButton.setOpaque(true);
+    addBillButton.setBackground(new Color(210, 2, 77)); // Cherry red background
+    addBillButton.setForeground(Color.WHITE);
+    addBillButton.setFont(new Font("Arial", Font.BOLD, 14));
+    addBillButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+    addBillButton.addActionListener(e -> {
+        try {
+            int billId = Integer.parseInt(billIdField.getText());
+            if (!isBillIdUnique(billId)) {
+                JOptionPane.showMessageDialog(this, "Bill ID already exists! Please choose a unique ID.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-        });
+
+            int customerId = Integer.parseInt(customerIdField.getText());
+            int petId = Integer.parseInt(petIdField.getText());
+            int quantity = Integer.parseInt(quantityField.getText());
+            String date = dateField.getText();
+
+            if (!isValidDate(date)) {
+                JOptionPane.showMessageDialog(this, "Invalid date format. Please use dd/MM/yyyy.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Customer customer = findCustomerById(customerId);
+            Pet pet = findPetById(petId);
+            if (customer != null && pet != null) {
+                Bill bill = new Bill(billId, customer, pet, quantity, date);
+                bills.add(bill);
+                updateTextArea(billingTextArea, getBillingData());
+                saveData();
+                clearBillingFields(billIdField, customerIdField, petIdField, quantityField, dateField);
+            } else {
+                JOptionPane.showMessageDialog(this, "Customer or pet not found.");
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid input data.");
+        }
+    });
 
         // Add button to show receipt
         JButton showReceiptButton = new JButton("Show Receipt");
@@ -741,6 +769,17 @@ class PetManagementSystem extends JFrame {
         this.repaint();
     }
     
+    // Date validation method
+    private boolean isValidDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateFormat.setLenient(false); // Ensure strict parsing
+        try {
+            dateFormat.parse(date); // Attempt to parse the date
+            return true; // Valid date
+        } catch (ParseException e) {
+            return false; // Invalid date
+        }
+}
     private Bill findBillById(int id) {
         for (Bill bill : bills) {
             if (bill.getId() == id) {
