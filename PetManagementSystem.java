@@ -294,15 +294,51 @@ class PetManagementSystem extends JFrame {
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
         )); // Add rounded corners
 
-// Add ActionListener to display a message
-aboutUsButton.addActionListener(e -> {
-    JOptionPane.showMessageDialog(this, "Welcome to our Pet Shop!\nWe care about your pets and provide the best services.", "About Us", JOptionPane.INFORMATION_MESSAGE);
-});
-
         // Add ActionListener to display a message
         aboutUsButton.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Welcome to our Pet Shop!\nWe care about your pets and provide the best services.", "About Us", JOptionPane.INFORMATION_MESSAGE);
+            // Custom panel for the dialog
+            JPanel messagePanel = new JPanel();
+            messagePanel.setBackground(Color.WHITE); // Set the dialog's background color
+            messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
+
+            // Add centered text with HTML styling
+            JLabel aboutUsMessage = new JLabel("<html><div style='text-align: center;'>Welcome to our Pet Shop!<br>We care about your pets and provide the best services.</div></html>");
+            aboutUsMessage.setFont(new Font("Arial", Font.PLAIN, 14));
+            aboutUsMessage.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the component in the panel
+            messagePanel.add(aboutUsMessage);
+
+            // Create custom OK button
+            JButton okButton = new JButton("OK");
+            okButton.setFocusPainted(false); // Remove focus border when clicked
+            okButton.setContentAreaFilled(true); // Ensure background is visible
+            okButton.setOpaque(true);
+            okButton.setBackground(new Color(210, 2, 77)); // Cherry red background
+            okButton.setForeground(Color.WHITE); // White text
+            okButton.setFont(new Font("Arial", Font.BOLD, 14)); // Bold font
+            okButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15)); // Padding for better appearance
+            okButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            // Dialog creation
+            JDialog aboutUsDialog = new JDialog(this, "About Us", true); // Modal dialog
+            aboutUsDialog.setSize(350, 200);
+            aboutUsDialog.setResizable(false);
+            aboutUsDialog.setLayout(new BoxLayout(aboutUsDialog.getContentPane(), BoxLayout.Y_AXIS));
+            aboutUsDialog.getContentPane().setBackground(Color.WHITE); // Set dialog background
+
+            // Add components to dialog
+            aboutUsDialog.add(Box.createVerticalStrut(20)); // Add spacing above text
+            aboutUsDialog.add(messagePanel); // Add message
+            aboutUsDialog.add(Box.createVerticalStrut(20)); // Add spacing above button
+            aboutUsDialog.add(okButton); // Add OK button
+            aboutUsDialog.add(Box.createVerticalStrut(10)); // Add spacing below button
+
+            // Add action to close the dialog
+            okButton.addActionListener(event -> aboutUsDialog.dispose());
+
+            aboutUsDialog.setLocationRelativeTo(this); // Center the dialog relative to the parent frame
+            aboutUsDialog.setVisible(true);
         });
+
 
         // Add components to mainPanel
         mainPanel.add(Box.createVerticalStrut(80)); // Spacing above image
@@ -320,6 +356,7 @@ aboutUsButton.addActionListener(e -> {
         this.revalidate();
         this.repaint();
     }
+
     private void showManagePetsPage() {
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(Color.WHITE);
@@ -635,7 +672,7 @@ aboutUsButton.addActionListener(e -> {
                 Bill bill = findBillById(billId);
                 if (bill != null) {
                     JFrame receiptFrame = new JFrame("Bill Receipt");
-                    receiptFrame.setSize(400, 300);
+                    receiptFrame.setSize(300, 350);
                     receiptFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     receiptFrame.setBackground(Color.WHITE);
         
@@ -644,21 +681,31 @@ aboutUsButton.addActionListener(e -> {
                     receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
         
                     String receiptText = "<html><div style='text-align: center;'>" +
-                        "<h2>Bill Receipt</h2>" +
-                        "Bill ID: " + bill.getId() + "<br>" +
-                        "Customer: " + bill.getCustomer() + "<br>" +
-                        "Pet: " + bill.getPet().getName() + "<br>" +
-                        "Quantity: " + bill.getQuantity() + "<br>" +
-                        "Amount: $" + bill.calculateTotalAmount() + "<br>" +
-                        "Date: " + bill.getDate() +
-                        "</div></html>";
+                            "<h2 style='margin-bottom: 15px;'>Bill Receipt</h2>" +
+                            "<p style='margin-bottom: 10px;'>Bill ID: " + bill.getId() + "</p>" +
+                            "<p style='margin-bottom: 10px;'>Customer Name: " + bill.getCustomer().getName() + "</p>" +
+                            "<p style='margin-bottom: 10px;'>Pet Name: " + bill.getPet().getName() + "</p>" +
+                            "<p style='margin-bottom: 10px;'>Quantity: " + bill.getQuantity() + "</p>" +
+                            "<p style='margin-bottom: 10px;'>Date: " + bill.getDate() + "</p>" +
+                            "<p style='margin-bottom: 10px;'>Amount: $" + bill.calculateTotalAmount() + "</p>" +
+                            "</div></html>";
+        
                     JLabel receiptLabel = new JLabel(receiptText, SwingConstants.CENTER);
                     receiptLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
                     receiptPanel.add(receiptLabel);
         
+                    receiptPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Add space below receipt text
+        
                     JButton closeButton = new JButton("Close");
-                    closeButton.addActionListener(event -> receiptFrame.dispose());
+                    closeButton.setFocusPainted(false);
+                    closeButton.setContentAreaFilled(true);
+                    closeButton.setOpaque(true);
+                    closeButton.setBackground(new Color(210, 2, 77)); // Cherry red background
+                    closeButton.setForeground(Color.WHITE); // White text
+                    closeButton.setFont(new Font("Arial", Font.BOLD, 14)); // Bold font
+                    closeButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // No border
                     closeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    closeButton.addActionListener(event -> receiptFrame.dispose());
                     receiptPanel.add(closeButton);
         
                     receiptFrame.add(receiptPanel);
@@ -670,6 +717,7 @@ aboutUsButton.addActionListener(e -> {
                 JOptionPane.showMessageDialog(this, "Invalid Bill ID. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+        
         
 
         // Create a panel to hold both buttons side by side
