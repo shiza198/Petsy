@@ -26,8 +26,22 @@ abstract class AbstractPet implements Serializable {
         this.owner = owner;
     }
 
+    // Getter and setter for price
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative.");
+        }
+        this.price = price;
+    }
+
+    @Override
     public String toString() {
-        return "Pet ID: " + id + ", Name: " + name + ", Type: " + type + ", Owner: " + owner;
+        return "Pet ID: " + id + ", Name: " + name + ", Type: " + type + 
+               ", Owner: " + owner + ", Price: $" + price;
     }
 
     public int getId() {
@@ -46,12 +60,9 @@ abstract class AbstractPet implements Serializable {
         return owner;
     }
 
-    public double getPrice() {
-        return price; // Getter for price
-    }
-
     public abstract String getDetails();
 }
+
 
 // Concrete Pet class extending AbstractPet
 class Pet extends AbstractPet {
@@ -59,10 +70,12 @@ class Pet extends AbstractPet {
         super(id, name, type, owner, price);
     }
 
+    @Override
     public String getDetails() {
         return "Pet details: " + this.toString();
     }
 }
+
 
 class Customer implements Serializable {
     private int id;
@@ -94,17 +107,30 @@ class Customer implements Serializable {
         return "Customer ID: " + id + ", Name: " + name + ", Email: " + email + ", Phone: " + phone;
     }
 
+    // Getters
     public int getId() {
         return id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
     public static boolean isValidEmail(String email) {
-        // Regex pattern for validating email
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         Pattern pattern = Pattern.compile(emailRegex);
         return email != null && pattern.matcher(email).matches();
     }
 }
+
 
 // Class Bill
 class Bill implements Serializable {
@@ -118,26 +144,43 @@ class Bill implements Serializable {
     public Bill(int id, Customer customer, Pet pet, int quantity, String date) {
         this.id = id;
         this.customer = customer;
-        this.pet = pet; // Store the pet reference
-        this.quantity = quantity; // Initialize quantity
+        this.pet = pet;
+        this.quantity = quantity;
         this.amount = pet.getPrice() * quantity;
         this.date = date;
     }
-    // Getter for Bill ID
+
     public int getId() {
-        return id; // Return the Bill ID
-    }
-    // Method to calculate total amount
-    public double calculateTotalAmount() {
-        return this.amount * this.quantity; // Total amount based on quantity
+        return id;
     }
 
-    // Update toString method to include quantity
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public Pet getPet() {
+        return pet;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public double calculateTotalAmount() {
+        return amount; // Total amount already calculated during initialization
+    }
+
+    @Override
     public String toString() {
         return "Bill ID: " + id + ", Customer: " + customer + ", Pet: " + pet.getName() +
-                ", Quantity: " + quantity + ", Amount: $" + calculateTotalAmount() + ", Date: " + date;
+               ", Quantity: " + quantity + ", Amount: $" + calculateTotalAmount() + ", Date: " + date;
     }
 }
+
 
 // Main class for Pet Management System
 class PetManagementSystem extends JFrame {
@@ -580,34 +623,44 @@ aboutUsButton.addActionListener(e -> {
         showReceiptButton.setFont(new Font("Arial", Font.BOLD, 14)); // Bold font
         showReceiptButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // Remove any visible border
         showReceiptButton.addActionListener(e -> {
-            String billIdText = billIdField.getText(); // Get the text from the field
-
+            String billIdText = billIdField.getText();
+        
             if (billIdText.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please enter a Bill ID.", "Error", JOptionPane.ERROR_MESSAGE);
-                return; // Exit the method if the field is empty
+                return;
             }
-
+        
             try {
-                int billId = Integer.parseInt(billIdText); // Parse the bill ID
+                int billId = Integer.parseInt(billIdText);
                 Bill bill = findBillById(billId);
                 if (bill != null) {
                     JFrame receiptFrame = new JFrame("Bill Receipt");
                     receiptFrame.setSize(400, 300);
                     receiptFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     receiptFrame.setBackground(Color.WHITE);
-
+        
                     JPanel receiptPanel = new JPanel();
                     receiptPanel.setBackground(Color.WHITE);
                     receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
-
-                    JLabel receiptLabel = new JLabel("<html><h2>Bill Receipt</h2><br>" + bill.toString() + "</html>");
+        
+                    String receiptText = "<html><div style='text-align: center;'>" +
+                        "<h2>Bill Receipt</h2>" +
+                        "Bill ID: " + bill.getId() + "<br>" +
+                        "Customer: " + bill.getCustomer() + "<br>" +
+                        "Pet: " + bill.getPet().getName() + "<br>" +
+                        "Quantity: " + bill.getQuantity() + "<br>" +
+                        "Amount: $" + bill.calculateTotalAmount() + "<br>" +
+                        "Date: " + bill.getDate() +
+                        "</div></html>";
+                    JLabel receiptLabel = new JLabel(receiptText, SwingConstants.CENTER);
                     receiptLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
                     receiptPanel.add(receiptLabel);
-
+        
                     JButton closeButton = new JButton("Close");
                     closeButton.addActionListener(event -> receiptFrame.dispose());
+                    closeButton.setAlignmentX(Component.CENTER_ALIGNMENT);
                     receiptPanel.add(closeButton);
-
+        
                     receiptFrame.add(receiptPanel);
                     receiptFrame.setVisible(true);
                 } else {
@@ -617,10 +670,8 @@ aboutUsButton.addActionListener(e -> {
                 JOptionPane.showMessageDialog(this, "Invalid Bill ID. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+        
 
-
-    
-        // Add buttons to main panel
         // Create a panel to hold both buttons side by side
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         buttonPanel.add(addBillButton);
